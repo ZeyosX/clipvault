@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file alias="clipvault.svg">../assets/clipvault.svg</file>
+    </qresource>
+</RCC>
