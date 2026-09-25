@@ -1,5 +1,4 @@
 #pragma once
-#include <QByteArray>
 #include <QString>
 
 namespace cv::crypto {

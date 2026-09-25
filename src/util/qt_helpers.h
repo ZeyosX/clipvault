@@ -1,6 +1,4 @@
 #pragma once
-#include <QByteArray>
-#include <QImage>
 #include <QPixmap>
 
 namespace cv::qt {

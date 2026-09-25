@@ -1,6 +1,5 @@
 #include "config/autostart.h"
 #include "util/paths.h"
-#include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
 namespace cv::autostart {

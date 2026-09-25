@@ -1,5 +1,4 @@
 #pragma once
-#include <QByteArray>
 #include <QMutex>
 #include <QString>
 #include <vector>

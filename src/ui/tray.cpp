@@ -1,5 +1,4 @@
 #include "ui/tray.h"
-#include <QAction>
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QIcon>
