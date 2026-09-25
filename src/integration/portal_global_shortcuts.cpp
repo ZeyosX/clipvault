@@ -1,5 +1,5 @@
-#include "portal_global_shortcuts.h"
-#include "portal_request.h"
+#include "integration/portal_global_shortcuts.h"
+#include "integration/portal_request.h"
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusInterface>

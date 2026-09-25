@@ -1,4 +1,4 @@
-#include "settings.h"
+#include "config/settings.h"
 #include "util/paths.h"
 #include <QSettings>
 namespace cv {

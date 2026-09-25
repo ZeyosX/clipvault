@@ -2,6 +2,11 @@
 # Prerequisites
 *.d
 
+# Local IDE and CMake build output
+.idea/
+build/
+cmake-build-*/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -31,4 +36,3 @@
 *.exe
 *.out
 *.app
-

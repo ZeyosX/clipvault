@@ -1,4 +1,4 @@
-#include "x11_paster.h"
+#include "integration/x11_paster.h"
 #include <QGuiApplication>
 #include <QTimer>
 #if CLIPVAULT_HAVE_X11

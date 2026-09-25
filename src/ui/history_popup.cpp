@@ -1,9 +1,9 @@
-#include "history_popup.h"
-#include "history_db.h"
-#include "history_model.h"
-#include "settings.h"
-#include "portal_paster.h"
-#include "x11_paster.h"
+#include "ui/history_popup.h"
+#include "history/history_db.h"
+#include "ui/history_model.h"
+#include "config/settings.h"
+#include "integration/portal_paster.h"
+#include "integration/x11_paster.h"
 #include "util/qt_helpers.h"
 #include <QApplication>
 #include <QClipboard>

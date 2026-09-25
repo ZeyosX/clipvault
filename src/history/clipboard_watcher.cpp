@@ -1,6 +1,6 @@
-#include "clipboard_watcher.h"
-#include "history_db.h"
-#include "settings.h"
+#include "history/clipboard_watcher.h"
+#include "history/history_db.h"
+#include "config/settings.h"
 #include "util/crypto.h"
 #include "util/qt_helpers.h"
 #include <QClipboard>

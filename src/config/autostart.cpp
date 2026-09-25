@@ -1,4 +1,4 @@
-#include "autostart.h"
+#include "config/autostart.h"
 #include "util/paths.h"
 #include <QFile>
 #include <QFileInfo>

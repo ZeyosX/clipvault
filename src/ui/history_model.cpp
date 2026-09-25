@@ -1,4 +1,4 @@
-#include "history_model.h"
+#include "ui/history_model.h"
 #include "util/qt_helpers.h"
 #include <QDateTime>
 #include <QIcon>
@@ -12,27 +12,27 @@ namespace cv {
     QVariant HistoryModel::data(const QModelIndex &index, const int role) const {
         if (!index.isValid()) return {};
         const int r = index.row();
-        if (r < 0 || r >= (int) _items.size()) return {};
-        const auto &it = _items[(size_t) r];
+        if (r < 0 || r >= static_cast<int>(_items.size())) return {};
+        const auto &[row, thumb] = _items[static_cast<size_t>(r)];
         switch (role) {
             case Qt::DisplayRole: {
-                if (it.row.type == EntryType::Image) {
-                    return QString("[Image] %1 bytes").arg(it.row.imagePng.size());
+                if (row.type == EntryType::Image) {
+                    return QString("[Image] %1 bytes").arg(row.imagePng.size());
                 }
-                auto t = it.row.text;
+                auto t = row.text;
                 t.replace('\n', ' ');
                 if (t.size() > 160) t = t.left(160) + "…";
                 return t;
             }
             case Qt::DecorationRole:
-                if (it.row.type == EntryType::Image) return it.thumb;
+                if (row.type == EntryType::Image) return thumb;
                 return QIcon::fromTheme("edit-paste");
-            case IdRole: return QVariant::fromValue<qint64>(it.row.id);
-            case TypeRole: return static_cast<int>(it.row.type);
-            case TextRole: return it.row.text;
-            case CreatedRole: return QVariant::fromValue<qint64>(it.row.createdAtMs);
-            case PngRole: return it.row.imagePng;
-            case PinnedRole: return it.row.pinned;
+            case IdRole: return QVariant::fromValue<qint64>(row.id);
+            case TypeRole: return static_cast<int>(row.type);
+            case TextRole: return row.text;
+            case CreatedRole: return QVariant::fromValue<qint64>(row.createdAtMs);
+            case PngRole: return row.imagePng;
+            case PinnedRole: return row.pinned;
             default:
                 return {};
         }
@@ -48,8 +48,8 @@ namespace cv {
         return r;
     }
     const EntryItem *HistoryModel::itemAt(const int row) const {
-        if (row < 0 || row >= (int) _items.size()) return nullptr;
-        return &_items[(size_t) row];
+        if (row < 0 || row >= static_cast<int>(_items.size())) return nullptr;
+        return &_items[static_cast<size_t>(row)];
     }
     void HistoryModel::setItems(std::vector<EntryItem> &&items) {
         beginResetModel();

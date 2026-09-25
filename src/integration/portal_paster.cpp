@@ -1,5 +1,5 @@
-#include "portal_paster.h"
-#include "portal_request.h"
+#include "integration/portal_paster.h"
+#include "integration/portal_request.h"
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusInterface>

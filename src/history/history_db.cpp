@@ -1,4 +1,4 @@
-#include "history_db.h"
+#include "history/history_db.h"
 #include "util/paths.h"
 #include <QDateTime>
 #include <QCryptographicHash>

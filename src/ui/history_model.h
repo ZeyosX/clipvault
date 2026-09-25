@@ -1,5 +1,5 @@
 #pragma once
-#include "history_db.h"
+#include "history/history_db.h"
 #include <QAbstractListModel>
 #include <QPixmap>
 #include <vector>

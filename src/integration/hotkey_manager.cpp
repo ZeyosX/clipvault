@@ -1,6 +1,6 @@
-#include "hotkey_manager.h"
-#include "portal_global_shortcuts.h"
-#include "x11_hotkey.h"
+#include "integration/hotkey_manager.h"
+#include "integration/portal_global_shortcuts.h"
+#include "integration/x11_hotkey.h"
 namespace cv {
     HotkeyManager::HotkeyManager(QObject *parent) : QObject(parent) {
         _portal = new PortalGlobalShortcuts(this);

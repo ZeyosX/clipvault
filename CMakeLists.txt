@@ -17,6 +17,9 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets DBus)
 
 find_package(SQLite3 REQUIRED)
+if (NOT TARGET SQLite3::SQLite3 AND TARGET SQLite::SQLite3)
+    add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+endif ()
 
 find_package(X11)
 set(CLIPVAULT_HAVE_X11 0)
@@ -29,21 +32,21 @@ endif ()
 
 add_executable(clipvault
         src/main.cpp
-        src/resources.qrc
+        assets/resources.qrc
         src/app.cpp
-        src/settings.cpp
-        src/autostart.cpp
-        src/history_db.cpp
-        src/history_model.cpp
-        src/clipboard_watcher.cpp
-        src/history_popup.cpp
-        src/tray.cpp
-        src/hotkey_manager.cpp
-        src/portal_request.cpp
-        src/portal_global_shortcuts.cpp
-        src/portal_paster.cpp
-        src/x11_hotkey.cpp
-        src/x11_paster.cpp
+        src/config/settings.cpp
+        src/config/autostart.cpp
+        src/history/history_db.cpp
+        src/history/clipboard_watcher.cpp
+        src/ui/history_model.cpp
+        src/ui/history_popup.cpp
+        src/ui/tray.cpp
+        src/integration/hotkey_manager.cpp
+        src/integration/portal_request.cpp
+        src/integration/portal_global_shortcuts.cpp
+        src/integration/portal_paster.cpp
+        src/integration/x11_hotkey.cpp
+        src/integration/x11_paster.cpp
         src/util/paths.cpp
         src/util/crypto.cpp
         src/util/qt_helpers.cpp
@@ -54,7 +57,7 @@ target_include_directories(clipvault PRIVATE src)
 
 target_link_libraries(clipvault PRIVATE
         Qt6::Core Qt6::Gui Qt6::Widgets Qt6::DBus
-        SQLite::SQLite3
+        SQLite3::SQLite3
 )
 
 if (CLIPVAULT_HAVE_X11)

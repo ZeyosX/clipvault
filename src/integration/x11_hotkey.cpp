@@ -1,4 +1,4 @@
-#include "x11_hotkey.h"
+#include "integration/x11_hotkey.h"
 #include "util/hotkey_parse.h"
 #include <QGuiApplication>
 #include <QSocketNotifier>

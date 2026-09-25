@@ -53,18 +53,19 @@ cmake --build build
 ./build/clipvault
 ```
 
+## Project layout
+
+- `src/main.cpp`, `src/app.*`: entry point and application wiring
+- `src/config/`: settings and login autostart
+- `src/history/`: clipboard capture and SQLite storage
+- `src/ui/`: history window, list model, and tray icon
+- `src/integration/`: Wayland portal and X11 shortcuts and paste support
+- `src/util/`: shared helpers
+- `assets/`: icon and Qt resource manifest
+
 ## Files created
 - DB: `~/.local/share/clipvault/history.db`
-- Settings:
-  - Hotkey string (default Ctrl+F1)
-
-## Extra UX features
-- Pin/favorites (P)
-- Delete selected entries (Del)
-- Preview panel (text/image)
-- Type-to-filter without losing arrow-key focus
-
-## Settings: `~/.config/clipvault/settings.ini`
+- Settings: `~/.config/clipvault/settings.ini`
 - Autostart: `~/.config/autostart/clipvault.desktop`
 
 ## Keyboard shortcuts in popup

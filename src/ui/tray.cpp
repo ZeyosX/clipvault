@@ -1,4 +1,4 @@
-#include "tray.h"
+#include "ui/tray.h"
 #include <QAction>
 #include <QApplication>
 #include <QMenu>

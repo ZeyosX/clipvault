@@ -1,4 +1,4 @@
-#include "portal_request.h"
+#include "integration/portal_request.h"
 #include <QDBusConnection>
 namespace cv {
     PortalRequest::PortalRequest(const QString &requestPath, QObject *parent)
