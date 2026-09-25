@@ -7,15 +7,12 @@
 #include "util/qt_helpers.h"
 #include <QClipboard>
 #include <QCursor>
-#include <QEvent>
 #include <QGuiApplication>
-#include <QHBoxLayout>
 #include <QDateTime>
 #include <QAction>
 #include <QMenu>
 #include <QTextEdit>
 #include <QSplitter>
-#include <QKeyEvent>
 #include <QMouseEvent>
 #include <QLabel>
 #include <QLineEdit>
@@ -183,7 +180,7 @@ namespace cv {
     bool HistoryPopup::eventFilter(QObject *obj, QEvent *e) {
         if (obj == _header) {
             if (e->type() == QEvent::MouseButtonPress) {
-                if (const auto *me = static_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
+                if (const auto *me = dynamic_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
                     _dragging = true;
                     _dragOffset = me->globalPosition().toPoint() - frameGeometry().topLeft();
                     return true;
@@ -195,7 +192,7 @@ namespace cv {
                     return true;
                 }
             } else if (e->type() == QEvent::MouseButtonRelease) {
-                if (const auto *me = static_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
+                if (const auto *me = dynamic_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
                     _dragging = false;
                     return true;
                 }
