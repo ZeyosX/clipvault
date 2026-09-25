@@ -21,7 +21,7 @@ namespace cv {
     private:
         void *_dpy = nullptr;
         unsigned long _root = 0;
-        int _keycode = 0;
+        unsigned int _keycode = 0;
         unsigned int _mods = 0;
         QSocketNotifier *_notifier = nullptr;
     };

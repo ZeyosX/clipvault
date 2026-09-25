@@ -38,7 +38,7 @@ namespace cv {
         }
         if (md->hasText()) {
             auto text = md->text();
-            if (text.endsWith('\0')) text.chop(1);
+            if (text.endsWith(QChar::Null)) text.chop(1);
             if (text.trimmed().isEmpty()) return;
             const auto hash = cv::crypto::sha256Hex(text.toUtf8());
             if (shouldIgnore(hash)) return;

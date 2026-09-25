@@ -13,7 +13,7 @@ namespace cv {
         Q_OBJECT
     public:
         explicit App(QObject *parent = nullptr);
-        ~App();
+        ~App() override;
         bool init();
         void runPostInit() const;
     private

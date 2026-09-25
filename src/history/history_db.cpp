@@ -103,7 +103,7 @@ namespace cv {
         sqlite3_bind_null(st, 5);
         sqlite3_bind_null(st, 6);
         const auto h = QCryptographicHash::hash(text.toUtf8(), QCryptographicHash::Sha256).toHex();
-        sqlite3_bind_text(st, 7, reinterpret_cast<const char *>(h.constData()), h.size(), SQLITE_TRANSIENT);
+        sqlite3_bind_text(st, 7, h.constData(), h.size(), SQLITE_TRANSIENT);
         const auto rc = sqlite3_step(st);
         sqlite3_finalize(st);
         return rc == SQLITE_DONE;

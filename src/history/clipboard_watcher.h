@@ -14,8 +14,8 @@ namespace cv {
         slots:
         void onClipboardChanged();
     private:
-        bool shouldIgnore(const QString &hash) const;
-    private:
+        [[nodiscard]] bool shouldIgnore(const QString &hash) const;
+
         QClipboard *_clipboard = nullptr;
         HistoryDb *_db = nullptr;
         Settings *_settings = nullptr;
