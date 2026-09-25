@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 project(clipvault VERSION 0.1.0 LANGUAGES CXX)
+include(GNUInstallDirs)
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type (Debug, Release, RelWithDebInfo, MinSizeRel)" FORCE)
@@ -100,4 +101,10 @@ if (CLIPVAULT_SANITIZERS AND (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"))
     )
 endif ()
 
-install(TARGETS clipvault RUNTIME DESTINATION bin)
+configure_file(assets/clipvault.desktop.in "${CMAKE_CURRENT_BINARY_DIR}/clipvault.desktop" @ONLY)
+
+install(TARGETS clipvault RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/clipvault.desktop"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+install(FILES assets/clipvault.svg
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps")

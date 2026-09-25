@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=ClipVault
+GenericName=Clipboard History
+Comment=Browse and paste clipboard history
+Keywords=clipboard;history;paste;
+Exec="@CMAKE_INSTALL_FULL_BINDIR@/clipvault"
+Icon=clipvault
+Terminal=false
+Categories=Utility;
+StartupNotify=true

@@ -53,6 +53,24 @@ cmake --build build
 ./build/clipvault
 ```
 
+## Install on Ubuntu
+
+From the project directory, run:
+
+```bash
+./scripts/install.sh
+```
+
+This builds ClipVault and installs it for your user in `~/.local/bin`, with an icon and a launcher in `~/.local/share`. Open **ClipVault** from Ubuntu's app menu. A normal launch opens the history window; `clipvault --hidden` starts in the tray only. Opening ClipVault from the menu again brings up the running instance.
+
+To uninstall:
+
+```bash
+./scripts/uninstall.sh
+```
+
+The uninstaller removes the app, launcher, icon, and login autostart entry. It keeps your history database and settings. The build dependencies above are needed for installation; runtime Qt and SQLite libraries must remain installed afterward.
+
 ## Project layout
 
 - `src/main.cpp`, `src/app.*`: entry point and application wiring
@@ -61,7 +79,8 @@ cmake --build build
 - `src/ui/`: history window, list model, and tray icon
 - `src/integration/`: Wayland portal and X11 shortcuts and paste support
 - `src/util/`: shared helpers
-- `assets/`: icon and Qt resource manifest
+- `assets/`: icon, Qt resource manifest, and desktop launcher
+- `scripts/`: per-user installer and uninstaller
 
 ## Files created
 - DB: `~/.local/share/clipvault/history.db`
