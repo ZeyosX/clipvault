@@ -9,7 +9,7 @@
 namespace cv {
     PortalPaster::PortalPaster(QObject *parent) : QObject(parent) {
     }
-    bool PortalPaster::isLikelyAvailable() const {
+    bool PortalPaster::isLikelyAvailable() {
         return QDBusConnection::sessionBus().interface()->isServiceRegistered("org.freedesktop.portal.Desktop");
     }
     void PortalPaster::pasteCtrlV() {
@@ -65,8 +65,8 @@ namespace cv {
         );
         QVariantMap options;
         options["handle_token"] = QString("cv_rdd_%1").arg(QUuid::createUuid().toString(QUuid::Id128));
-        options["types"] = static_cast<uint>(1); 
-        options["persist_mode"] = static_cast<uint>(1);
+        options["types"] = 1U;
+        options["persist_mode"] = 1U;
         const auto m = iface.call("SelectDevices", QVariant::fromValue(_sessionHandle), options);
         if (m.type() == QDBusMessage::ErrorMessage) {
             _creating = false;
@@ -128,9 +128,9 @@ namespace cv {
             QDBusConnection::sessionBus()
         );
         QVariantMap options;
-        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, CTRL_L, static_cast<uint>(1));
-        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, KEY_V, static_cast<uint>(1));
-        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, KEY_V, static_cast<uint>(0));
-        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, CTRL_L, static_cast<uint>(0));
+        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, CTRL_L, 1U);
+        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, KEY_V, 1U);
+        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, KEY_V, 0U);
+        iface.call("NotifyKeyboardKeysym", QVariant::fromValue(_sessionHandle), options, CTRL_L, 0U);
     }
 } 

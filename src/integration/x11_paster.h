@@ -6,7 +6,7 @@ namespace cv {
     public:
         explicit X11Paster(QObject *parent = nullptr);
         ~X11Paster() override;
-        bool isAvailable() const;
+        [[nodiscard]] bool isAvailable() const;
         void pasteCtrlV() const;
         signals:
         void status(const QString &msg);

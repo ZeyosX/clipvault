@@ -26,7 +26,7 @@ namespace cv {
         }
         _dpy = dpy;
         _root = DefaultRootWindow(dpy);
-        const auto [ok, mods, key, error] = cv::hotkey::parseForX11(hotkey);
+        const auto [ok, mods, key, error] = hotkey::parseForX11(hotkey);
         if (!ok) {
             emit status("Hotkey parse error: " + error);
             cleanup();
@@ -54,7 +54,7 @@ namespace cv {
             LockMask | Mod2Mask
         };
         for (const unsigned int m: modifiers) {
-            XGrabKey(dpy, _keycode, base | m, _root, True, GrabModeAsync, GrabModeAsync);
+            XGrabKey(dpy, static_cast<int>(_keycode), base | m, _root, True, GrabModeAsync, GrabModeAsync);
         }
         XSelectInput(dpy, _root, KeyPressMask);
         XSync(dpy, False);
@@ -72,8 +72,7 @@ namespace cv {
             XEvent ev;
             XNextEvent(dpy, &ev);
             if (ev.type == KeyPress) {
-                const auto &ke = ev.xkey;
-                if (ke.keycode == _keycode && ((ke.state & _mods) == _mods)) {
+                if (const auto &ke = ev.xkey; ke.keycode == _keycode && (ke.state & _mods) == _mods) {
                     emit activated();
                 }
             }
@@ -94,7 +93,7 @@ namespace cv {
             if (_keycode) {
                 constexpr unsigned int modifiers[] = {0, LockMask, Mod2Mask, LockMask | Mod2Mask};
                 for (const unsigned int m: modifiers) {
-                    XUngrabKey(dpy, _keycode, _mods | m, _root);
+                    XUngrabKey(dpy, static_cast<int>(_keycode), _mods | m, _root);
                 }
             }
             XCloseDisplay(dpy);

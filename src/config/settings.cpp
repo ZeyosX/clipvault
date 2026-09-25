@@ -5,8 +5,8 @@ namespace cv {
     Settings::Settings(QObject *parent) : QObject(parent) {
     }
     void Settings::load() {
-        cv::paths::ensureDirs();
-        const QSettings s(cv::paths::settingsPath(), QSettings::IniFormat);
+        paths::ensureDirs();
+        const QSettings s(paths::settingsPath(), QSettings::IniFormat);
         _d.maxEntries = s.value("history/maxEntries", _d.maxEntries).toInt();
         _d.alwaysOnTop = s.value("ui/alwaysOnTop", _d.alwaysOnTop).toBool();
         _d.startOnLogin = s.value("app/startOnLogin", _d.startOnLogin).toBool();
@@ -17,8 +17,8 @@ namespace cv {
         emit changed();
     }
     void Settings::save() const {
-        cv::paths::ensureDirs();
-        QSettings s(cv::paths::settingsPath(), QSettings::IniFormat);
+        paths::ensureDirs();
+        QSettings s(paths::settingsPath(), QSettings::IniFormat);
         s.setValue("history/maxEntries", _d.maxEntries);
         s.setValue("ui/alwaysOnTop", _d.alwaysOnTop);
         s.setValue("app/startOnLogin", _d.startOnLogin);

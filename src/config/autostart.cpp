@@ -20,12 +20,12 @@ namespace cv::autostart {
         ).arg(exec, iconPath);
     }
     bool isEnabled() {
-        const auto p = cv::paths::autostartDesktopPath();
+        const auto p = paths::autostartDesktopPath();
         return QFileInfo::exists(p);
     }
     bool setEnabled(const bool enabled, const QString &execPath, const QString &iconPath) {
-        cv::paths::ensureDirs();
-        const auto p = cv::paths::autostartDesktopPath();
+        paths::ensureDirs();
+        const auto p = paths::autostartDesktopPath();
         if (!enabled) {
             if (QFileInfo::exists(p)) return QFile::remove(p);
             return true;

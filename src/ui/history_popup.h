@@ -23,14 +23,14 @@ namespace cv {
                      X11Paster *x11Paster,
                      QWidget *parent = nullptr);
         void openPopup();
+        bool eventFilter(QObject *obj, QEvent *e) override;
         signals:
         void requestedSettings();
     protected:
         bool event(QEvent *e) override;
-        bool eventFilter(QObject *obj, QEvent *e) override;
     private
         slots:
-        void onFilterChanged(const QString &);
+        void onFilterChanged(const QString &) const;
         void onConfirm();
         void onTogglePin() const;
         void onDeleteSelected() const;
@@ -38,9 +38,8 @@ namespace cv {
         void showContextMenu(const QPoint &pos);
     private:
         void applyAlwaysOnTop();
-        void setClipboardFromSelection(bool &isImageSingle) const;
+        void setClipboardFromSelection() const;
         void triggerPaste() const;
-    private:
         QClipboard *_clipboard = nullptr;
         HistoryDb *_db = nullptr;
         Settings *_settings = nullptr;
@@ -53,7 +52,7 @@ namespace cv {
         QWidget *_header = nullptr;
         QLabel *_hint = nullptr;
         QLabel *_previewImage = nullptr;
-        class QTextEdit *_previewText = nullptr;
+        QTextEdit *_previewText = nullptr;
         QLabel *_previewMeta = nullptr;
         bool _dragging = false;
         QPoint _dragOffset;

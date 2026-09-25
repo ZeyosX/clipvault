@@ -18,7 +18,7 @@ namespace cv {
     }
     void HotkeyManager::start(const QString &hotkey) {
         _hotkey = hotkey.trimmed().isEmpty() ? QString("Ctrl+F1") : hotkey.trimmed();
-        if (_portal->isLikelyAvailable()) {
+        if (PortalGlobalShortcuts::isLikelyAvailable()) {
             _portal->start(_hotkey);
             return;
         }

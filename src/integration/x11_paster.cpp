@@ -32,7 +32,7 @@ namespace cv {
         return;
 #else
         if (!isAvailable()) return;
-        QTimer::singleShot(50, this, [this]() {
+        QTimer::singleShot(50, this, [this] {
             auto *dpy = static_cast<Display *>(_dpy);
             if (!dpy) return;
             const KeyCode kcCtrl = XKeysymToKeycode(dpy, XK_Control_L);

@@ -26,8 +26,8 @@ namespace cv {
         if (md->hasImage()) {
             const auto img = qvariant_cast<QImage>(md->imageData());
             if (img.isNull()) return;
-            const auto png = cv::qt::imageToPngBytes(img);
-            const auto hash = cv::crypto::sha256Hex(png);
+            const auto png = qt::imageToPngBytes(img);
+            const auto hash = crypto::sha256Hex(png);
             if (shouldIgnore(hash)) return;
             if (_db->addImagePng(png, img.width(), img.height())) {
                 _db->pruneToMax(_settings->data().maxEntries);
@@ -40,7 +40,7 @@ namespace cv {
             auto text = md->text();
             if (text.endsWith(QChar::Null)) text.chop(1);
             if (text.trimmed().isEmpty()) return;
-            const auto hash = cv::crypto::sha256Hex(text.toUtf8());
+            const auto hash = crypto::sha256Hex(text.toUtf8());
             if (shouldIgnore(hash)) return;
             if (_db->addText(text)) {
                 _db->pruneToMax(_settings->data().maxEntries);

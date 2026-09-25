@@ -5,8 +5,8 @@
 #include "integration/portal_paster.h"
 #include "integration/x11_paster.h"
 #include "util/qt_helpers.h"
-#include <QApplication>
 #include <QClipboard>
+#include <QCursor>
 #include <QEvent>
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -20,27 +20,28 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
-#include <QMimeData>
+#include <QPixmap>
 #include <QScreen>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
-#include <QTimer>
 #include <algorithm>
 #include <QVBoxLayout>
 
 namespace cv {
+    namespace {
     class HistoryFilterProxy final : public QSortFilterProxyModel {
     public:
         using QSortFilterProxyModel::QSortFilterProxyModel;
 
     protected:
-        bool filterAcceptsRow(const int sourceRow, const QModelIndex &sourceParent) const override {
+        [[nodiscard]] bool filterAcceptsRow(const int sourceRow, const QModelIndex &sourceParent) const override {
             if (filterRegularExpression().pattern().isEmpty()) return true;
             const auto idx = sourceModel()->index(sourceRow, 0, sourceParent);
             const auto t = sourceModel()->data(idx, HistoryModel::TextRole).toString();
             return t.contains(filterRegularExpression());
         }
     };
+    } // namespace
 
     HistoryPopup::HistoryPopup(QClipboard *clipboard, HistoryDb *db, Settings *settings, PortalPaster *portalPaster,
                                X11Paster *x11Paster, QWidget *parent)
@@ -182,8 +183,7 @@ namespace cv {
     bool HistoryPopup::eventFilter(QObject *obj, QEvent *e) {
         if (obj == _header) {
             if (e->type() == QEvent::MouseButtonPress) {
-                const auto *me = dynamic_cast<QMouseEvent *>(e);
-                if (me->button() == Qt::LeftButton) {
+                if (const auto *me = static_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
                     _dragging = true;
                     _dragOffset = me->globalPosition().toPoint() - frameGeometry().topLeft();
                     return true;
@@ -195,8 +195,7 @@ namespace cv {
                     return true;
                 }
             } else if (e->type() == QEvent::MouseButtonRelease) {
-                const auto *me = dynamic_cast<QMouseEvent *>(e);
-                if (me->button() == Qt::LeftButton) {
+                if (const auto *me = static_cast<QMouseEvent *>(e); me->button() == Qt::LeftButton) {
                     _dragging = false;
                     return true;
                 }
@@ -222,7 +221,7 @@ namespace cv {
                 onConfirm();
                 return true;
             }
-            if (ke->key() == Qt::Key_P && (ke->modifiers() == Qt::NoModifier)) {
+            if (ke->key() == Qt::Key_P && ke->modifiers() == Qt::NoModifier) {
                 onTogglePin();
                 return true;
             }
@@ -230,9 +229,8 @@ namespace cv {
                 onDeleteSelected();
                 return true;
             }
-            if ((ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier)) {
-                const auto txt = ke->text();
-                if (!txt.isEmpty() && txt.at(0).isPrint() && ke->key() != Qt::Key_Space) {
+            if (ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier) {
+                if (const auto txt = ke->text(); !txt.isEmpty() && txt.at(0).isPrint() && ke->key() != Qt::Key_Space) {
                     _filter->setText(_filter->text() + txt);
                     onFilterChanged(_filter->text());
                     _list->setFocus();
@@ -245,8 +243,7 @@ namespace cv {
                     return true;
                 }
                 if (ke->key() == Qt::Key_Backspace) {
-                    auto t = _filter->text();
-                    if (!t.isEmpty()) {
+                    if (auto t = _filter->text(); !t.isEmpty()) {
                         t.chop(1);
                         _filter->setText(t);
                         onFilterChanged(_filter->text());
@@ -265,7 +262,7 @@ namespace cv {
         return QWidget::event(e);
     }
 
-    void HistoryPopup::onFilterChanged(const QString &t) {
+    void HistoryPopup::onFilterChanged(const QString &t) const {
         _proxy->setFilterRegularExpression(
             QRegularExpression(QRegularExpression::escape(t), QRegularExpression::CaseInsensitiveOption));
         if (_proxy->rowCount() > 0) {
@@ -274,11 +271,9 @@ namespace cv {
         updatePreview();
     }
 
-    void HistoryPopup::setClipboardFromSelection(bool &isImageSingle) const {
-        isImageSingle = false;
-        const auto selected = _list->selectionModel()->selectedIndexes();
-        if (selected.isEmpty()) return;
-        auto idxs = selected;
+    void HistoryPopup::setClipboardFromSelection() const {
+        auto idxs = _list->selectionModel()->selectedIndexes();
+        if (idxs.isEmpty()) return;
         std::ranges::sort(idxs,
                           [](const QModelIndex &a, const QModelIndex &b) { return a.row() < b.row(); });
         if (idxs.size() == 1) {
@@ -286,9 +281,8 @@ namespace cv {
             const auto *it = _model->itemAt(src.row());
             if (!it) return;
             if (it->row.type == EntryType::Image && !it->row.imagePng.isEmpty()) {
-                const QImage img = cv::qt::pngBytesToImage(it->row.imagePng);
+                const QImage img = qt::pngBytesToImage(it->row.imagePng);
                 _clipboard->setImage(img, QClipboard::Clipboard);
-                isImageSingle = true;
                 return;
             }
 
@@ -308,25 +302,18 @@ namespace cv {
     void HistoryPopup::triggerPaste() const {
         if (!_settings->data().autoPaste) return;
         if (QGuiApplication::platformName() == "wayland") {
-            if (_portalPaster && _portalPaster
-                ->
-                isLikelyAvailable()
-            ) {
+            if (_portalPaster && PortalPaster::isLikelyAvailable()) {
                 _portalPaster->pasteCtrlV();
             }
             return;
         }
-        if (_x11Paster && _x11Paster
-            ->
-            isAvailable()
-        ) {
+        if (_x11Paster && _x11Paster->isAvailable()) {
             _x11Paster->pasteCtrlV();
         }
     }
 
     void HistoryPopup::onConfirm() {
-        bool isImageSingle = false;
-        setClipboardFromSelection(isImageSingle);
+        setClipboardFromSelection();
         close();
         triggerPaste();
     }
@@ -378,8 +365,7 @@ namespace cv {
     void HistoryPopup::updatePreview() const {
         QModelIndex idx = _list->currentIndex();
         if (!idx.isValid()) {
-            const auto sel = _list->selectionModel()->selectedIndexes();
-            if (!sel.isEmpty()) idx = sel[0];
+            if (const auto sel = _list->selectionModel()->selectedIndexes(); !sel.isEmpty()) idx = sel[0];
         }
         if (!idx.isValid()) {
             _previewMeta->setText("");
@@ -398,15 +384,14 @@ namespace cv {
         if (it->row.type == EntryType::Image) {
             _previewText->setVisible(false);
             _previewImage->setVisible(true);
-            const QImage img = cv::qt::pngBytesToImage(it->row.imagePng);
+            const QImage img = qt::pngBytesToImage(it->row.imagePng);
             if (img.isNull()) {
                 _previewImage->setText("Image decode failed");
                 return;
             }
             QPixmap px = QPixmap::fromImage(img);
-            const int maxW = _previewImage->width() - 12;
-            const int maxH = _previewImage->height() - 12;
-            if (maxW > 0 && maxH > 0) {
+            if (const int maxW = _previewImage->width() - 12, maxH = _previewImage->height() - 12;
+                maxW > 0 && maxH > 0) {
                 px = px.scaled(maxW, maxH, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             }
             _previewImage->setPixmap(px);
@@ -418,8 +403,7 @@ namespace cv {
     }
 
     void HistoryPopup::showContextMenu(const QPoint &pos) {
-        const auto idx = _list->indexAt(pos);
-        if (!idx.isValid()) return;
+        if (const auto idx = _list->indexAt(pos); !idx.isValid()) return;
         QMenu menu(this);
         const QAction *pin = menu.addAction("Toggle Pin (P)");
         const QAction *del = menu.addAction("Delete (Del)");

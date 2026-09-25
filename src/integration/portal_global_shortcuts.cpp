@@ -6,14 +6,13 @@
 #include <QDBusArgument>
 #include <QDBusMetaType>
 #include <QDBusMessage>
-#include <QDBusPendingCall>
-#include <QDBusPendingCallWatcher>
-#include <QDBusReply>
 #include <QUuid>
+namespace {
 struct CvShortcut {
     QString id;
     QVariantMap props;
 };
+}
 Q_DECLARE_METATYPE(CvShortcut)
 typedef QList<CvShortcut> CvShortcutList;
 Q_DECLARE_METATYPE(CvShortcutList)
@@ -59,7 +58,7 @@ namespace cv {
     PortalGlobalShortcuts::PortalGlobalShortcuts(QObject *parent) : QObject(parent) {
         registerTypes();
     }
-    bool PortalGlobalShortcuts::isLikelyAvailable() const {
+    bool PortalGlobalShortcuts::isLikelyAvailable() {
         return QDBusConnection::sessionBus().interface()->isServiceRegistered("org.freedesktop.portal.Desktop");
     }
     void PortalGlobalShortcuts::start(const QString &trigger) {

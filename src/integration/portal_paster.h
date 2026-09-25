@@ -6,7 +6,7 @@ namespace cv {
         Q_OBJECT
     public:
         explicit PortalPaster(QObject *parent = nullptr);
-        bool isLikelyAvailable() const;
+        [[nodiscard]] static bool isLikelyAvailable();
         void pasteCtrlV(); 
         signals:
         void status(const QString &msg);
@@ -20,7 +20,6 @@ namespace cv {
         void selectDevices();
         void startSession();
         void sendCtrlVNow();
-    private:
         QDBusObjectPath _sessionHandle;
         bool _creating = false;
         bool _ready = false;

@@ -11,7 +11,6 @@
 #include "integration/x11_paster.h"
 #include <QApplication>
 #include <QCoreApplication>
-#include <QClipboard>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -23,8 +22,9 @@
 #include <QFile>
 #include <QFileInfo>
 namespace cv {
-    static QString iconPathForAutostart() {
-        const auto p = cv::paths::dataDir() + "/clipvault.svg";
+    namespace {
+    QString iconPathForAutostart() {
+        const auto p = paths::dataDir() + "/clipvault.svg";
         if (!QFileInfo::exists(p)) {
             QFile::copy(":/assets/clipvault.svg", p);
         }
@@ -32,7 +32,7 @@ namespace cv {
     }
     class SettingsDialog final : public QDialog {
     public:
-        SettingsDialog(Settings *settings, QWidget *parent = nullptr)
+        explicit SettingsDialog(Settings *settings, QWidget *parent = nullptr)
             : QDialog(parent), _settings(settings) {
             setWindowTitle("ClipVault Settings");
             setModal(true);
@@ -88,6 +88,7 @@ namespace cv {
         QCheckBox *_autoPaste = nullptr;
         QLineEdit *_hotkeyEdit = nullptr;
     };
+    } // namespace
     App::App(QObject *parent) : QObject(parent) {
     }
     App::~App() {
@@ -95,7 +96,7 @@ namespace cv {
         _db = nullptr;
     }
     bool App::init() {
-        cv::paths::ensureDirs();
+        paths::ensureDirs();
         _settings = new Settings(this);
         _settings->load();
         connect(_settings, &Settings::changed, this, &App::onSettingsChanged);
@@ -105,8 +106,7 @@ namespace cv {
         _x11Paster = new X11Paster(this);
         _popup = new HistoryPopup(QApplication::clipboard(), _db, _settings, _portalPaster, _x11Paster);
         _tray = new Tray(_settings, this);
-        if (!_tray->init()) {
-        }
+        _tray->init();
         _hotkey = new HotkeyManager(this);
         connect(_hotkey, &HotkeyManager::activated, this, &App::showHistory);
         connect(_hotkey, &HotkeyManager::status, this, [this](const QString &msg) {
@@ -129,21 +129,20 @@ namespace cv {
         _popup->openPopup();
     }
     void App::showSettings() const {
-        SettingsDialog dlg(_settings);
-        if (dlg.exec() == QDialog::Accepted) {
+        if (SettingsDialog dlg(_settings); dlg.exec() == QDialog::Accepted) {
             dlg.apply();
             _db->pruneToMax(_settings->data().maxEntries);
             if (_hotkey) _hotkey->rebind(_settings->data().hotkey);
         }
     }
-    void App::onSettingsChanged() {
+    void App::onSettingsChanged() const {
         ensureAutostart();
         if (_hotkey) _hotkey->rebind(_settings->data().hotkey);
     }
     void App::ensureAutostart() const {
         const auto execPath = QCoreApplication::applicationFilePath();
         const auto iconPath = iconPathForAutostart();
-        cv::autostart::setEnabled(_settings->data().startOnLogin, execPath, iconPath);
+        autostart::setEnabled(_settings->data().startOnLogin, execPath, iconPath);
     }
     void App::clearHistory() const {
         if (_db) _db->clearAll();

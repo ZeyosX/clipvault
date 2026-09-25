@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QString>
-#include <QSocketNotifier>
+class QSocketNotifier;
 namespace cv {
     class X11Hotkey : public QObject {
         Q_OBJECT
@@ -18,7 +18,6 @@ namespace cv {
         void onX11Readable();
     private:
         void cleanup();
-    private:
         void *_dpy = nullptr;
         unsigned long _root = 0;
         unsigned int _keycode = 0;

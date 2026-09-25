@@ -20,11 +20,10 @@ namespace cv {
         slots:
         void showHistory() const;
         void showSettings() const;
-        void onSettingsChanged();
+        void onSettingsChanged() const;
         void clearHistory() const;
     private:
         void ensureAutostart() const;
-    private:
         Settings *_settings = nullptr;
         HistoryDb *_db = nullptr;
         ClipboardWatcher *_watcher = nullptr;

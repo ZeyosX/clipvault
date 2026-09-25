@@ -1,6 +1,5 @@
 #pragma once
 #include <QByteArray>
-#include <QImage>
 #include <QMutex>
 #include <QString>
 #include <vector>
@@ -36,7 +35,6 @@ namespace cv {
     private:
         bool exec(const QString &sql) const;
         bool prepareSchema() const;
-    private:
         mutable QMutex _mx;
         sqlite3 *_db = nullptr;
     };

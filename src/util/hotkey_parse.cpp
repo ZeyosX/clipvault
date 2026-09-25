@@ -33,9 +33,7 @@ namespace cv::hotkey {
 
         for (int i = 0; i < parts.size(); ++i) {
             const auto tok = normToken(parts[i]);
-            const bool last = (i == parts.size() - 1);
-
-            if (!last) {
+            if (const bool last = i == parts.size() - 1; !last) {
 #if CLIPVAULT_HAVE_X11
                 if (tok == "ctrl") mods |= ControlMask;
                 else if (tok == "shift") mods |= ShiftMask;

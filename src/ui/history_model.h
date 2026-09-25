@@ -20,15 +20,14 @@ namespace cv {
             PinnedRole,
         };
         explicit HistoryModel(QObject *parent = nullptr);
-        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex &index, int role) const override;
-        QHash<int, QByteArray> roleNames() const override;
-        const EntryItem *itemAt(int row) const;
+        [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
+        [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+        [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
+        [[nodiscard]] const EntryItem *itemAt(int row) const;
         void reloadFromDb(const HistoryDb &db, int limit);
         void prependFromDb(const HistoryDb &db, int limit); 
     private:
         void setItems(std::vector<EntryItem> &&items);
-    private:
         std::vector<EntryItem> _items;
     };
 } 

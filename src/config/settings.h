@@ -13,8 +13,8 @@ namespace cv {
         Q_OBJECT
     public:
         explicit Settings(QObject *parent = nullptr);
-        const SettingsData &data() const { return _d; }
-        SettingsData &data() { return _d; }
+        [[nodiscard]] const SettingsData &data() const { return _d; }
+        [[nodiscard]] SettingsData &data() { return _d; }
         void load();
         void save() const;
         signals:

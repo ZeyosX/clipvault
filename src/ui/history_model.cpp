@@ -64,8 +64,8 @@ namespace cv {
             EntryItem it;
             it.row = r;
             if (r.type == EntryType::Image && !r.imagePng.isEmpty()) {
-                const auto img = cv::qt::pngBytesToImage(r.imagePng);
-                it.thumb = cv::qt::makeThumb(img, 48);
+                const auto img = qt::pngBytesToImage(r.imagePng);
+                it.thumb = qt::makeThumb(img, 48);
             }
             items.push_back(std::move(it));
         }

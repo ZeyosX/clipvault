@@ -2,22 +2,19 @@
 #include "util/paths.h"
 #include <QDateTime>
 #include <QCryptographicHash>
-#include <QDir>
-#include <QFileInfo>
 #include <QMutexLocker>
-#include <QStandardPaths>
 #include <QSet>
 #include <sqlite3.h>
+#include <utility>
 namespace cv {
-    static QString toUtf8Str(const QString &s) { return s; }
     HistoryDb::HistoryDb() = default;
     HistoryDb::~HistoryDb() { close(); }
     bool HistoryDb::open() {
         QMutexLocker lk(&_mx);
         if (_db) return true;
-        cv::paths::ensureDirs();
-        const auto path = cv::paths::dbPath();
-        if (sqlite3_open(path.toUtf8().constData(), &_db) != SQLITE_OK) {
+        paths::ensureDirs();
+        if (const auto path = paths::dbPath(); sqlite3_open(path.toUtf8().constData(), &_db) != SQLITE_OK) {
+            if (_db) sqlite3_close(_db);
             _db = nullptr;
             return false;
         }
@@ -89,8 +86,9 @@ namespace cv {
         return out;
     }
     bool HistoryDb::addText(const QString &text) {
+        if (!open()) return false;
         QMutexLocker lk(&_mx);
-        if (!_db && !const_cast<HistoryDb *>(this)->open()) return false;
+        if (!_db) return false;
         const auto ts = QDateTime::currentMSecsSinceEpoch();
         const char *sql =
                 "INSERT INTO entries(created_at_ms,type,text,image_png,width,height,hash) VALUES(?,?,?,?,?,?,?);";
@@ -103,14 +101,15 @@ namespace cv {
         sqlite3_bind_null(st, 5);
         sqlite3_bind_null(st, 6);
         const auto h = QCryptographicHash::hash(text.toUtf8(), QCryptographicHash::Sha256).toHex();
-        sqlite3_bind_text(st, 7, h.constData(), h.size(), SQLITE_TRANSIENT);
+        sqlite3_bind_text(st, 7, h.constData(), -1, SQLITE_TRANSIENT);
         const auto rc = sqlite3_step(st);
         sqlite3_finalize(st);
         return rc == SQLITE_DONE;
     }
     bool HistoryDb::addImagePng(const QByteArray &pngBytes, const int width, const int height) {
+        if (!open()) return false;
         QMutexLocker lk(&_mx);
-        if (!_db && !const_cast<HistoryDb *>(this)->open()) return false;
+        if (!_db) return false;
         const auto ts = QDateTime::currentMSecsSinceEpoch();
         const char *sql =
                 "INSERT INTO entries(created_at_ms,type,text,image_png,width,height,hash) VALUES(?,?,?,?,?,?,?);";
@@ -119,11 +118,11 @@ namespace cv {
         sqlite3_bind_int64(st, 1, ts);
         sqlite3_bind_int(st, 2, static_cast<int>(EntryType::Image));
         sqlite3_bind_null(st, 3);
-        sqlite3_bind_blob(st, 4, pngBytes.constData(), pngBytes.size(), SQLITE_TRANSIENT);
+        sqlite3_bind_blob64(st, 4, pngBytes.constData(), static_cast<sqlite3_uint64>(pngBytes.size()), SQLITE_TRANSIENT);
         sqlite3_bind_int(st, 5, width);
         sqlite3_bind_int(st, 6, height);
         const auto h = QCryptographicHash::hash(pngBytes, QCryptographicHash::Sha256).toHex();
-        sqlite3_bind_text(st, 7, reinterpret_cast<const char *>(h.constData()), h.size(), SQLITE_TRANSIENT);
+        sqlite3_bind_text(st, 7, h.constData(), -1, SQLITE_TRANSIENT);
         const auto rc = sqlite3_step(st);
         sqlite3_finalize(st);
         return rc == SQLITE_DONE;
@@ -145,9 +144,10 @@ namespace cv {
             r.type = static_cast<EntryType>(sqlite3_column_int(st, 2));
             const auto *t = reinterpret_cast<const char *>(sqlite3_column_text(st, 3));
             if (t) r.text = QString::fromUtf8(t);
-            const auto *b = reinterpret_cast<const unsigned char *>(sqlite3_column_blob(st, 4));
-            const auto blen = sqlite3_column_bytes(st, 4);
-            if (b && blen > 0) r.imagePng = QByteArray(reinterpret_cast<const char *>(b), blen);
+            const auto *b = static_cast<const char *>(sqlite3_column_blob(st, 4));
+            if (const auto blen = sqlite3_column_bytes(st, 4); b && blen > 0) {
+                r.imagePng = QByteArray(b, blen);
+            }
             const auto *hh = reinterpret_cast<const char *>(sqlite3_column_text(st, 5));
             if (hh) r.hash = QString::fromUtf8(hh);
             r.pinned = sqlite3_column_int(st, 6) != 0;

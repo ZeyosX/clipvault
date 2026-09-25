@@ -1,8 +1,9 @@
 #include "integration/portal_request.h"
 #include <QDBusConnection>
+#include <utility>
 namespace cv {
-    PortalRequest::PortalRequest(const QString &requestPath, QObject *parent)
-        : QObject(parent), _path(requestPath) {
+    PortalRequest::PortalRequest(QString requestPath, QObject *parent)
+        : QObject(parent), _path(std::move(requestPath)) {
         QDBusConnection::sessionBus().connect(
             "org.freedesktop.portal.Desktop",
             _path,
