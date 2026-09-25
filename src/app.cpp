@@ -16,6 +16,8 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -36,32 +38,40 @@ namespace cv {
             : QDialog(parent), _settings(settings) {
             setWindowTitle("ClipVault Settings");
             setModal(true);
+            setMinimumWidth(430);
             auto *root = new QVBoxLayout(this);
+            root->setContentsMargins(20, 20, 20, 18);
+            root->setSpacing(14);
+            auto *heading = new QLabel("Settings", this);
+            heading->setStyleSheet("font-size: 18px; font-weight: 600;");
+            root->addWidget(heading);
             auto *form = new QFormLayout();
+            form->setSpacing(12);
             _maxEntries = new QSpinBox(this);
             _maxEntries->setRange(10, 50000);
             _maxEntries->setValue(_settings->data().maxEntries);
+            _maxEntries->setToolTip("Old unpinned clips are removed when this limit is reached.");
             _hotkeyEdit = new QLineEdit(this);
             _hotkeyEdit->setText(_settings->data().hotkey);
             _hotkeyEdit->setPlaceholderText("Ctrl+F1");
+            _hotkeyEdit->setToolTip("Shortcut that opens clipboard history, for example Ctrl+F1.");
             _alwaysOnTop = new QCheckBox("Popup always on top", this);
             _alwaysOnTop->setChecked(_settings->data().alwaysOnTop);
             _startOnLogin = new QCheckBox("Start on login", this);
             _startOnLogin->setChecked(_settings->data().startOnLogin);
-            _autoPaste = new QCheckBox("Auto paste on Enter (Wayland asks for Remote Control permission)", this);
+            _autoPaste = new QCheckBox("Paste into the active app when choosing a clip", this);
             _autoPaste->setChecked(_settings->data().autoPaste);
-            form->addRow("Max history entries", _maxEntries);
-            form->addRow("Hotkey", _hotkeyEdit);
+            form->addRow("History limit", _maxEntries);
+            form->addRow("Open history shortcut", _hotkeyEdit);
             form->addRow("", _alwaysOnTop);
             form->addRow("", _startOnLogin);
             form->addRow("", _autoPaste);
             root->addLayout(form);
             auto *note = new QLabel(
-                "Tip: On Wayland, global shortcuts/paste use XDG portals.\n"
-                "On Xorg/X11, hotkey and paste are implemented via X11."
-                , this);
+                "With paste off, choosing a clip copies it and closes the popup. "
+                "On Wayland, automatic paste may ask for remote control permission.", this);
             note->setWordWrap(true);
-            note->setStyleSheet("color: rgba(0,0,0,0.65);");
+            note->setStyleSheet("color: palette(mid);");
             root->addWidget(note);
             auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -105,6 +115,7 @@ namespace cv {
         _portalPaster = new PortalPaster(this);
         _x11Paster = new X11Paster(this);
         _popup = new HistoryPopup(QApplication::clipboard(), _db, _settings, _portalPaster, _x11Paster);
+        connect(_popup, &HistoryPopup::requestedSettings, this, &App::showSettings);
         _tray = new Tray(_settings, this);
         _tray->init();
         _hotkey = new HotkeyManager(this);
@@ -119,6 +130,7 @@ namespace cv {
             connect(_tray, &Tray::clearHistoryRequested, this, &App::clearHistory);
         }
         _watcher = new ClipboardWatcher(QApplication::clipboard(), _db, _settings, this);
+        connect(_watcher, &ClipboardWatcher::entryAdded, _popup, &HistoryPopup::refresh);
         ensureAutostart();
         return true;
     }
@@ -132,7 +144,7 @@ namespace cv {
         if (SettingsDialog dlg(_settings); dlg.exec() == QDialog::Accepted) {
             dlg.apply();
             _db->pruneToMax(_settings->data().maxEntries);
-            if (_hotkey) _hotkey->rebind(_settings->data().hotkey);
+            _popup->refresh();
         }
     }
     void App::onSettingsChanged() const {
@@ -145,7 +157,17 @@ namespace cv {
         autostart::setEnabled(_settings->data().startOnLogin, execPath, iconPath);
     }
     void App::clearHistory() const {
-        if (_db) _db->clearAll();
-        if (_tray) _tray->showMessage("ClipVault", "History cleared");
+        QMessageBox confirm(QMessageBox::Warning, "Clear clipboard history",
+                            "Delete all saved clips, including pinned items?", QMessageBox::NoButton);
+        auto *clearButton = confirm.addButton("Clear history", QMessageBox::DestructiveRole);
+        confirm.addButton(QMessageBox::Cancel);
+        confirm.exec();
+        if (confirm.clickedButton() != clearButton) return;
+        if (_db && _db->clearAll()) {
+            _popup->refresh();
+            if (_tray) _tray->showMessage("ClipVault", "Clipboard history cleared");
+        } else {
+            QMessageBox::warning(nullptr, "ClipVault", "Could not clear clipboard history.");
+        }
     }
 } 

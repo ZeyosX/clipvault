@@ -26,7 +26,7 @@ namespace cv {
         return false;
 #endif
     }
-    void X11Paster::pasteCtrlV() const {
+    void X11Paster::pasteCtrlV() {
 #if !CLIPVAULT_HAVE_X11
         emit status("X11 support not built");
         return;

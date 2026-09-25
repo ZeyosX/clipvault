@@ -17,13 +17,19 @@ namespace cv {
         switch (role) {
             case Qt::DisplayRole: {
                 if (row.type == EntryType::Image) {
-                    return QString("[Image] %1 bytes").arg(row.imagePng.size());
+                    return QString("%1Image · %2 KB")
+                        .arg(row.pinned ? "★  " : "")
+                        .arg(qMax<qsizetype>(1, (row.imagePng.size() + 1023) / 1024));
                 }
-                auto t = row.text;
-                t.replace('\n', ' ');
-                if (t.size() > 160) t = t.left(160) + "…";
-                return t;
+                auto summary = row.text.simplified();
+                if (summary.size() > 160) summary = summary.left(160) + "…";
+                return QString("%1%2").arg(row.pinned ? "★  " : "", summary);
             }
+            case Qt::ToolTipRole:
+                return row.type == EntryType::Image
+                           ? QString("Image copied %1").arg(QDateTime::fromMSecsSinceEpoch(row.createdAtMs)
+                                                              .toString("yyyy-MM-dd HH:mm"))
+                           : row.text.left(500);
             case Qt::DecorationRole:
                 if (row.type == EntryType::Image) return thumb;
                 return QIcon::fromTheme("edit-paste");

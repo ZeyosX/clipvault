@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QSystemTrayIcon>
 class QMenu;
+class QAction;
 namespace cv {
     class Settings;
     class Tray : public QObject {
@@ -10,6 +11,7 @@ namespace cv {
         explicit Tray(Settings *settings, QObject *parent = nullptr);
         bool init();
         void showMessage(const QString &title, const QString &message) const;
+        void updateHotkey() const;
         signals:
         void showHistoryRequested();
         void settingsRequested();
@@ -22,5 +24,6 @@ namespace cv {
         Settings *_settings = nullptr;
         QSystemTrayIcon *_tray = nullptr;
         QMenu *_menu = nullptr;
+        QAction *_showAction = nullptr;
     };
 } 

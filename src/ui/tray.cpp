@@ -1,4 +1,5 @@
 #include "ui/tray.h"
+#include "config/settings.h"
 #include <QMenu>
 #include <QSystemTrayIcon>
 #include <QIcon>
@@ -13,12 +14,14 @@ namespace cv {
         _tray->setIcon(QIcon::fromTheme("edit-paste", QIcon(":/assets/clipvault.svg")));
         _tray->setToolTip("ClipVault");
         _menu = new QMenu();
-        const auto *actShow = _menu->addAction("Show History (Ctrl+F1)");
+        _showAction = _menu->addAction("Show History");
+        updateHotkey();
         const auto *actSettings = _menu->addAction("Settings");
         const auto *actClear = _menu->addAction("Clear History");
         _menu->addSeparator();
         const auto *actQuit = _menu->addAction("Quit");
-        connect(actShow, &QAction::triggered, this, &Tray::showHistoryRequested);
+        connect(_showAction, &QAction::triggered, this, &Tray::showHistoryRequested);
+        connect(_settings, &Settings::changed, this, &Tray::updateHotkey);
         connect(actSettings, &QAction::triggered, this, &Tray::settingsRequested);
         connect(actClear, &QAction::triggered, this, &Tray::clearHistoryRequested);
         connect(actQuit, &QAction::triggered, this, &Tray::quitRequested);
@@ -29,6 +32,11 @@ namespace cv {
     }
     void Tray::showMessage(const QString &title, const QString &message) const {
         if (_tray) _tray->showMessage(title, message);
+    }
+    void Tray::updateHotkey() const {
+        if (_showAction) {
+            _showAction->setText(QString("Show History (%1)").arg(_settings->data().hotkey));
+        }
     }
     void Tray::onActivated(const QSystemTrayIcon::ActivationReason reason) {
         if (reason == QSystemTrayIcon::Trigger) {

@@ -6,17 +6,17 @@ Default hotkey: **Ctrl+F1**.
 ## Features implemented
 - Clipboard monitoring (text + images)
 - SQLite-backed history with max-entry pruning
-- Tray icon with menu (Show History / Settings / Quit)
+- Tray icon with menu (Show History / Settings / Clear History / Quit)
+- One running instance per user; another launch opens its history window
 - Popup window closes on focus loss
+- Searchable history with empty states, clip preview, and visible Copy, Pin, Delete, and Paste actions
 - Multi-select (Shift + ↑/↓) and paste selected entries on Enter
 - Settings:
   - Hotkey string (default Ctrl+F1)
 
-## Extra UX features
-- Pin/favorites (P)
-- Delete selected entries (Del)
-- Preview panel (text/image)
-- Type-to-filter without losing arrow-key focus
+## Using the popup
+
+Search matches clip text. Enter `image` or `pinned` to find those types of clips. The preview shows the full text or image for the current selection. Copy keeps the popup open; Paste selection closes it and pastes when automatic paste is enabled. Double-clicking an entry chooses it. Clearing all history from the tray asks for confirmation.
 
 ## Settings:
   - Max entries in history
@@ -91,6 +91,8 @@ The uninstaller removes the app, launcher, icon, and login autostart entry. It k
 - ↑/↓ : move
 - Shift + ↑/↓ : extend selection
 - Enter : paste (or copy-only if Auto paste is disabled)
+- Ctrl+F : focus search
+- Ctrl+C : copy selection without closing
 - P : toggle pin
 - Del : delete selected
 - Ctrl+Backspace : clear filter
